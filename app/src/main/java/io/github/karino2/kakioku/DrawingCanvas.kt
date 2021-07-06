@@ -102,6 +102,7 @@ class DrawingCanvas(context: Context, var background: Bitmap?) : View(context) {
             MotionEvent.ACTION_UP -> {
                 if (downHandled) {
                     downHandled = false
+                    path.lineTo(x, y)
                     bmpCanvas.drawPath(path, pathPaint)
                     onUpdate(bitmap)
                     path.reset()
