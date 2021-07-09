@@ -160,9 +160,14 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
                         onResult(nextLevel)
                         isAnswered.value = false
                     }
-                    if (cardData.level == 0) {
+                    // initial or retry or initial next. Every case has the same hard-normal next level.
+                    if (cardData.level == 0 ||
+                        cardData.level == 1 ||
+                            cardData.level == 2) {
                         val normalLevel = cardData.nextLevelNormal()
                         val normalIntervalMin = CardDataSource.levelToIntervalMin(normalLevel)
+                        val nextLabel = if(cardData.level==0) "$normalIntervalMin min" else "1 day"
+
                         BottomButton(modifier=Modifier.clickable { onNext(0) }) {
                             Column {
                                 Text("Retry")
@@ -170,7 +175,7 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
                         }
                         BottomButton(modifier=Modifier.clickable {  onNext(normalLevel) }) {
                             Column {
-                                Text("$normalIntervalMin min")
+                                Text(nextLabel)
                                 Text("Normal")
                             }
                         }
@@ -185,7 +190,6 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
 
                         BottomButton(modifier=Modifier.clickable { onNext(retryLevel) }) {
                             Column {
-                                Text("< 10min")
                                 Text("Retry")
                             }
                         }
