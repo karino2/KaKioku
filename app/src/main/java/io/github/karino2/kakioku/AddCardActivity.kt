@@ -15,12 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.documentfile.provider.DocumentFile
 import io.github.karino2.kakioku.AddCard
+import io.github.karino2.kakioku.ui.theme.CardColors
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
+import io.github.karino2.kakioku.ui.theme.normalColors
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 import java.util.*
@@ -43,11 +46,12 @@ class AddCardActivity : ComponentActivity() {
         }
 
 
+        val colors = normalColors()
         setContent {
             KaKiokuTheme {
                 Column {
                     TopAppBar(title = { Text("title") })
-                    AddCard({ qbmp = it }, { abmp = it }, {
+                    AddCard(colors, { qbmp = it }, { abmp = it }, {
                         saveCard(qbmp!!, abmp!!)
                     })
                 }
@@ -89,7 +93,7 @@ class AddCardActivity : ComponentActivity() {
 }
 
 @Composable
-fun ClearableCanvas(label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit) {
+fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit) {
     Column {
         Row(verticalAlignment= Alignment.CenterVertically) {
             Text(label, fontSize=30.sp)
@@ -104,6 +108,7 @@ fun ClearableCanvas(label: String, clearCount: Int, onClear: ()->Unit, onUpdateB
                 factory = {context ->
                     DrawingCanvas(context, null).apply {
                         setOnUpdateListener(onUpdateBmp)
+                        setStrokeColor(penColor.toArgb())
                     }
                 },
                 update = {
@@ -117,16 +122,16 @@ fun ClearableCanvas(label: String, clearCount: Int, onClear: ()->Unit, onUpdateB
 }
 
 @Composable
-fun AddCard(onQuestionBmpUpdate: (bmp: Bitmap)->Unit, onAnswerBmpUpdate: (bmp:Bitmap)->Unit, onSave: ()->Unit) {
+fun AddCard(colors: CardColors, onQuestionBmpUpdate: (bmp: Bitmap)->Unit, onAnswerBmpUpdate: (bmp:Bitmap)->Unit, onSave: ()->Unit) {
     Column(modifier= Modifier.fillMaxHeight()) {
         val clearQCount = remember { mutableStateOf(0) }
         val clearACount = remember { mutableStateOf(0) }
         Box(modifier= Modifier.weight(1f)) {
-            ClearableCanvas("Question", clearQCount.value, { clearQCount.value += 1 }, onQuestionBmpUpdate)
+            ClearableCanvas(colors.qColor, "Question", clearQCount.value, { clearQCount.value += 1 }, onQuestionBmpUpdate)
         }
         Divider(color= Color.Blue, thickness = 2.dp)
         Box(modifier= Modifier.weight(1f)) {
-            ClearableCanvas("Answer", clearACount.value, { clearACount.value += 1 }, onAnswerBmpUpdate)
+            ClearableCanvas(colors.aColor, "Answer", clearACount.value, { clearACount.value += 1 }, onAnswerBmpUpdate)
         }
         BottomNavigation {
             BottomNavigationItem(

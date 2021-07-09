@@ -18,10 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,7 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
-
+import io.github.karino2.kakioku.ui.theme.normalColors
 
 
 class QAActivity : ComponentActivity() {
@@ -73,7 +70,7 @@ class QAActivity : ComponentActivity() {
         setContent {
             val cardState = targetCard.observeAsState()
             cardState.value?.let {
-                Content(it) { nextLevel ->
+                Content(normalColors().writingColor,  it) { nextLevel ->
                     val updated = targetCardSource.copyWithLevel(nextLevel)
                     cardIO.updateData(updated)
                     cardQueue.pushRest(updated)
@@ -99,7 +96,7 @@ fun RowScope.BottomButton(modifier: Modifier=Modifier, content: @Composable (Box
 }
 
 @Composable
-fun Content(cardData: CardData, onResult: (nextLevel: Int)->Unit) {
+fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Unit) {
     KaKiokuTheme {
         Column(modifier= Modifier.fillMaxHeight()) {
             TopAppBar(title = { Text("title") })
@@ -121,7 +118,7 @@ fun Content(cardData: CardData, onResult: (nextLevel: Int)->Unit) {
                         AndroidView(modifier = Modifier
                             .size(maxWidth, maxHeight),
                             factory = {context ->
-                                DrawingCanvas(context, cardData.question)
+                                DrawingCanvas(context, cardData.question).apply { setStrokeColor(penColor.toArgb()) }
                             },
                             update = {
                                 it.clearCanvas(clearCount.value)
