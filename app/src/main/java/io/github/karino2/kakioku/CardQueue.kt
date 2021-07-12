@@ -53,7 +53,7 @@ data class CardDataSource(val id: String, val question: DocumentFile, val answer
 
     val isFire : Boolean
         get() {
-            if (level == 0)
+            if (level == 0 || level == 1)
                 return true
 
             val now = Date().time

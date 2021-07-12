@@ -163,8 +163,9 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
                         val normalLevel = cardData.nextLevelNormal()
                         val normalIntervalMin = CardDataSource.levelToIntervalMin(normalLevel)
                         val nextLabel = if(cardData.level==0) "$normalIntervalMin min" else "1 day"
+                        val retryLevel = if(cardData.level == 2) 0 else cardData.level
 
-                        BottomButton(modifier=Modifier.clickable { onNext(0) }) {
+                        BottomButton(modifier=Modifier.clickable { onNext(retryLevel) }) {
                             Column {
                                 Text("Retry")
                             }
