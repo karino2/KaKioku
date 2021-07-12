@@ -1,7 +1,5 @@
 package io.github.karino2.kakioku
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -19,8 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -39,7 +35,7 @@ class QAActivity : ComponentActivity() {
     val cardQueue by lazy {
         val deckParser = DeckParser(deckDir, contentResolver)
         deckParser.listFiles()
-        CardQueue(deckParser.filterCardList()).apply { setup() }
+        CardQueue(deckParser.filterValidCardList()).apply { setup() }
     }
 
     val cardIO by lazy { CardIO(contentResolver) }

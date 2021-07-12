@@ -142,7 +142,7 @@ class DeckParser(val dir: DocumentFile, val resolver: ContentResolver) {
         }
     }
 
-    fun filterCardList() = cardDict.values.filter { it.isValid }.map { CardDataSource(it.id, it.question!!, it.answer!!, it.data!!, it.date!!, it.level) }
+    fun filterValidCardList() = cardDict.values.filter { it.isValid }.map { CardDataSource(it.id, it.question!!, it.answer!!, it.data!!, it.date!!, it.level) }
 
 }
 
