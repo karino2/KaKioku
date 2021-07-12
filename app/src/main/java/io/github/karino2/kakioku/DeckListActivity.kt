@@ -64,8 +64,15 @@ class DeckListActivity : ComponentActivity() {
                                     it.data = dir.uri
                                     startActivity(it)
                                 }
+                            },
+                            {
+                                dir ->
+                                Intent(this, CardListActivity::class.java).also {
+                                    it.data = dir.uri
+                                    startActivity(it)
+                                }
                             }
-            )
+                        )
         }
 
         if (_url == null) {
@@ -75,21 +82,27 @@ class DeckListActivity : ComponentActivity() {
 }
 
 @Composable
-fun Deck(deckDir: DocumentFile, onOpenDeck : ()->Unit, onAddCards: () -> Unit) {
+fun Deck(deckDir: DocumentFile, onOpenDeck : ()->Unit, onAddCards: () -> Unit, onCardList: () -> Unit) {
     var expanded = remember { mutableStateOf(false) }
     Card(border= BorderStroke(2.dp, Color.Black)) {
-        Row(modifier=Modifier.clickable(onClick = onOpenDeck), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier=Modifier.clickable(onClick = onOpenDeck).padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(deckDir.name!!, fontSize = 20.sp, modifier=Modifier.weight(9f))
             Box(modifier=Modifier.weight(1f)) {
                 IconButton(onClick= {expanded.value = true}) {
                     Icon(Icons.Default.MoreVert, contentDescription = "Deck menu")
                 }
                 DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
-                    DropdownMenuItem(onClick = { onAddCards() }) {
+                    DropdownMenuItem(onClick = {
+                        expanded.value = false
+                        onAddCards()
+                    }) {
                         Text("Add Cards")
                     }
-                    DropdownMenuItem(onClick = { /*TODO*/ }) {
-                        Text("Delete Deck")
+                    DropdownMenuItem(onClick = {
+                        expanded.value = false
+                        onCardList()
+                    }) {
+                        Text("Card List")
                     }
                 }
             }
@@ -99,11 +112,11 @@ fun Deck(deckDir: DocumentFile, onOpenDeck : ()->Unit, onAddCards: () -> Unit) {
 }
 
 @Composable
-fun DeckList(deckDirs: LiveData<List<DocumentFile>>, gotoDeck : (dir: DocumentFile)->Unit, gotoAddCards : (dir: DocumentFile)->Unit) {
+fun DeckList(deckDirs: LiveData<List<DocumentFile>>, gotoDeck : (dir: DocumentFile)->Unit, gotoAddCards : (dir: DocumentFile)->Unit, gotoCardList: (dir:DocumentFile)->Unit) {
     val deckListState = deckDirs.observeAsState(emptyList())
     Column(modifier= Modifier.padding(10.dp).verticalScroll(rememberScrollState())) {
         deckListState.value.forEach {
-            Deck(it, { gotoDeck(it) }, { gotoAddCards(it) })
+            Deck(it, { gotoDeck(it) }, { gotoAddCards(it) }, { gotoCardList(it) })
         }
     }
 
