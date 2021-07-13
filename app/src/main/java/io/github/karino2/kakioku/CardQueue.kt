@@ -96,7 +96,30 @@ class CardIO(val resolver: ContentResolver) {
         }
     }
 
-    private fun savePngFile(bitmap: Bitmap, pngFile: DocumentFile) {
+    fun parseData(dfile: DocumentFile) : Pair<Int, Date> {
+        resolver.openInputStream(dfile.uri).use {
+            BufferedReader(InputStreamReader(it)).use { br->
+                val arr = br.readLine().split(",")
+                return Pair(arr[0].toInt(), Date(arr[1].toLong()))
+            }
+        }
+    }
+
+
+    fun loadCardDataSource(deckDir: DocumentFile, id: String) : CardDataSource {
+        val qname = "${id}_Q.png"
+        val aname = "${id}_A.png"
+        val dname = "${id}_D.txt"
+
+        val qfile = deckDir.findFile(qname) ?: throw Exception("Can't find file $qname")
+        val afile = deckDir.findFile(aname) ?: throw Exception("Can't find file $aname")
+        val dfile = deckDir.findFile(dname) ?: throw Exception("Can't find file $dname")
+        val (level, date) = parseData(dfile)
+
+        return CardDataSource(id, qfile, afile, dfile, date, level)
+    }
+
+    fun savePngFile(bitmap: Bitmap, pngFile: DocumentFile) {
         resolver.openOutputStream(pngFile.uri, "wt").use {
             bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
         }
@@ -125,14 +148,9 @@ class DeckParser(val dir: DocumentFile, val resolver: ContentResolver) {
         return Pair(name.substring(0, sep), name.substring(sep+1))
     }
 
-    fun parseData(dfile: DocumentFile) : Pair<Int, Date> {
-        resolver.openInputStream(dfile.uri).use {
-            BufferedReader(InputStreamReader(it)).use { br->
-                val arr = br.readLine().split(",")
-                return Pair(arr[0].toInt(), Date(arr[1].toLong()))
-            }
-        }
-    }
+    val cardIO by lazy { CardIO(resolver) }
+
+    fun parseData(dfile: DocumentFile) = cardIO.parseData(dfile)
 
     fun listFiles() {
         dir.listFiles().forEach { file->

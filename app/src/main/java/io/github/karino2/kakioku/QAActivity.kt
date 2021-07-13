@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
@@ -102,7 +101,7 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
             val isAnswered = remember { mutableStateOf(false) }
 
             Box(modifier=Modifier.weight(1f)) {
-                ClearableCanvas(penColor, "Question", clearCount.value, { clearCount.value += 1 }, {}, bgBmp = cardData.question)
+                ClearableCanvas(penColor, "Question", clearCount.value, { clearCount.value += 1 }, {}, backgroundBmp = cardData.question)
             }
             Divider(color= Color.Blue, thickness = 2.dp)
             Box(modifier=Modifier.weight(1f)) {

@@ -32,6 +32,11 @@
             android:theme="@style/Theme.KaKioku.NoActionBar">
         </activity>
         <activity android:name=".CardListActivity" android:label="@string/app_name" android:theme="@style/Theme.KaKioku.NoActionBar" />
+        <activity
+            android:name=".EditCardActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.KaKioku.NoActionBar">
+        </activity>
 
     </application>
 

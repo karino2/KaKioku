@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -14,13 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.documentfile.provider.DocumentFile
-import io.github.karino2.kakioku.AddCard
 import io.github.karino2.kakioku.ui.theme.CardColors
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
 import io.github.karino2.kakioku.ui.theme.normalColors
@@ -86,7 +83,7 @@ class AddCardActivity : ComponentActivity() {
 }
 
 @Composable
-fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit, fgBmp: Bitmap? = null, bgBmp: Bitmap? = null) {
+fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit, foregroundBmp: Bitmap? = null, backgroundBmp: Bitmap? = null) {
     Column {
         Row(verticalAlignment= Alignment.CenterVertically) {
             Text(label, fontSize=30.sp)
@@ -99,14 +96,14 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
             AndroidView(modifier = Modifier
                 .size(maxWidth, maxHeight),
                 factory = {context ->
-                    DrawingCanvas(context, bgBmp, fgBmp).apply {
+                    DrawingCanvas(context, backgroundBmp, foregroundBmp).apply {
                         setOnUpdateListener(onUpdateBmp)
                         setStrokeColor(penColor.toArgb())
                     }
                 },
                 update = {
                     it.clearCanvas(clearCount)
-                    bgBmp?.let { bg ->
+                    backgroundBmp?.let { bg ->
                         it.maybeNewBackground(bg)
                     }
                 }
@@ -119,15 +116,20 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
 
 @Composable
 fun AddCard(colors: CardColors, onQuestionBmpUpdate: (bmp: Bitmap)->Unit, onAnswerBmpUpdate: (bmp:Bitmap)->Unit, onSave: ()->Unit) {
+    EditCard(colors, null, null, onQuestionBmpUpdate, onAnswerBmpUpdate, onSave)
+}
+
+@Composable
+fun EditCard(colors: CardColors, questionFg: Bitmap?, answerFg: Bitmap?, onQuestionBmpUpdate: (bmp: Bitmap)->Unit, onAnswerBmpUpdate: (bmp:Bitmap)->Unit, onSave: ()->Unit) {
     Column(modifier= Modifier.fillMaxHeight()) {
         val clearQCount = remember { mutableStateOf(0) }
         val clearACount = remember { mutableStateOf(0) }
         Box(modifier= Modifier.weight(1f)) {
-            ClearableCanvas(colors.qColor, "Question", clearQCount.value, { clearQCount.value += 1 }, onQuestionBmpUpdate)
+            ClearableCanvas(colors.qColor, "Question", clearQCount.value, { clearQCount.value += 1 }, onQuestionBmpUpdate, foregroundBmp = questionFg)
         }
         Divider(color= Color.Blue, thickness = 2.dp)
         Box(modifier= Modifier.weight(1f)) {
-            ClearableCanvas(colors.aColor, "Answer", clearACount.value, { clearACount.value += 1 }, onAnswerBmpUpdate)
+            ClearableCanvas(colors.aColor, "Answer", clearACount.value, { clearACount.value += 1 }, onAnswerBmpUpdate, foregroundBmp = answerFg)
         }
         BottomNavigation {
             BottomNavigationItem(
