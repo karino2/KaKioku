@@ -59,6 +59,7 @@ class AddCardActivity : ComponentActivity() {
         }
     }
 
+    val cardIO by lazy { CardIO(contentResolver) }
     fun createId() = Date().time
 
     private fun saveCard(qbmp: Bitmap, abmp: Bitmap) {
@@ -66,11 +67,9 @@ class AddCardActivity : ComponentActivity() {
         val qname = "${id}_Q.png"
         val aname = "${id}_A.png"
         val dname = "${id}_D.txt"
-        val qfile = deckDir.createFile("image/png", qname) ?: throw Exception("Can't create file $qname")
-        savePng(qbmp, qfile)
 
-        val afile = deckDir.createFile("image/png", aname) ?: throw Exception("Can't create file $aname")
-        savePng(abmp, afile)
+        cardIO.savePng(deckDir, qbmp, qname)
+        cardIO.savePng(deckDir, abmp, aname)
 
         val dfile = deckDir.createFile("text/plain", dname) ?: throw Exception("Can't create file $dname")
         createDataFile(id, dfile)
@@ -84,16 +83,10 @@ class AddCardActivity : ComponentActivity() {
             }
         }
     }
-
-    private fun savePng(bitmap: Bitmap, pngFile: DocumentFile) {
-        contentResolver.openOutputStream(pngFile.uri, "wt").use {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
-        }
-    }
 }
 
 @Composable
-fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit) {
+fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit, fgBmp: Bitmap? = null, bgBmp: Bitmap? = null) {
     Column {
         Row(verticalAlignment= Alignment.CenterVertically) {
             Text(label, fontSize=30.sp)
@@ -106,13 +99,16 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
             AndroidView(modifier = Modifier
                 .size(maxWidth, maxHeight),
                 factory = {context ->
-                    DrawingCanvas(context, null).apply {
+                    DrawingCanvas(context, bgBmp, fgBmp).apply {
                         setOnUpdateListener(onUpdateBmp)
                         setStrokeColor(penColor.toArgb())
                     }
                 },
                 update = {
                     it.clearCanvas(clearCount)
+                    bgBmp?.let { bg ->
+                        it.maybeNewBackground(bg)
+                    }
                 }
             )
 

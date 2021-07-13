@@ -95,6 +95,18 @@ class CardIO(val resolver: ContentResolver) {
             }
         }
     }
+
+    private fun savePngFile(bitmap: Bitmap, pngFile: DocumentFile) {
+        resolver.openOutputStream(pngFile.uri, "wt").use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
+        }
+    }
+
+    fun savePng(deckDir: DocumentFile, bitmap: Bitmap, fileName: String) {
+        val pngFile = deckDir.createFile("image/png", fileName) ?: throw Exception("Can't create file $fileName")
+        savePngFile(bitmap, pngFile)
+    }
+
 }
 
 class DeckParser(val dir: DocumentFile, val resolver: ContentResolver) {

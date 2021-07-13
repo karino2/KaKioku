@@ -5,8 +5,8 @@ import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 
-class DrawingCanvas(context: Context, var background: Bitmap?) : View(context) {
-    lateinit var bitmap : Bitmap
+class DrawingCanvas(context: Context, var background: Bitmap? = null, var initialBmp: Bitmap? = null) : View(context) {
+    lateinit var bitmap: Bitmap
     private lateinit var bmpCanvas: Canvas
     private var clearCount = 0
 
@@ -29,40 +29,48 @@ class DrawingCanvas(context: Context, var background: Bitmap?) : View(context) {
 
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         bmpCanvas = Canvas(bitmap)
-        drawBackground()
+        drawInitialBitmap()
         onUpdate(bitmap)
     }
 
-    fun setStrokeColor(newColor: Int) { pathPaint.color = newColor }
+    fun setStrokeColor(newColor: Int) {
+        pathPaint.color = newColor
+    }
 
-    fun clearCanvas() {
+    private fun clearCanvas() {
         bitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888);
         bmpCanvas = Canvas(bitmap)
-        drawBackground()
+        drawInitialBitmap()
         onUpdate(bitmap)
         invalidate()
     }
 
+    private fun drawInitialBitmap() {
+        drawBitmap(background)
+        drawBitmap(initialBmp)
+    }
+
     fun clearCanvas(count: Int) {
-        if(clearCount == count)
+        if (clearCount == count)
             return
         clearCount = count
+        initialBmp = null
         clearCanvas()
     }
 
-    fun maybeNewBackground(bgbmp : Bitmap) {
+    fun maybeNewBackground(bgbmp: Bitmap) {
         if (background == bgbmp)
             return
         background = bgbmp
         clearCanvas()
     }
 
-    private fun drawBackground() {
-        background?.let { bg->
+    private fun drawBitmap(bitmap: Bitmap?) {
+        bitmap?.let { bmp ->
             bmpCanvas.drawBitmap(
-                bg,
-                Rect(0, 0, bg.width, bg.height),
-                Rect(0, 0, bitmap.width, bitmap.height),
+                bmp,
+                Rect(0, 0, bmp.width, bmp.height),
+                Rect(0, 0, this.bitmap.width, this.bitmap.height),
                 bmpPaint
             )
         }
@@ -76,7 +84,7 @@ class DrawingCanvas(context: Context, var background: Bitmap?) : View(context) {
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
         val y = event.y
-        when(event.action) {
+        when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 downHandled = true
                 path.reset()
@@ -87,11 +95,11 @@ class DrawingCanvas(context: Context, var background: Bitmap?) : View(context) {
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
-                if(downHandled) {
+                if (downHandled) {
                     val dx = Math.abs(x - prevX)
                     val dy = Math.abs(y - prevY)
                     if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-                        path.quadTo(prevX, prevY, (x+prevX)/2, (y+prevY)/2)
+                        path.quadTo(prevX, prevY, (x + prevX) / 2, (y + prevY) / 2)
                         prevX = x
                         prevY = y
                         invalidate()

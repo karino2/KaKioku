@@ -102,28 +102,7 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
             val isAnswered = remember { mutableStateOf(false) }
 
             Box(modifier=Modifier.weight(1f)) {
-                Column {
-                    Row(verticalAlignment= Alignment.CenterVertically) {
-                        Text("Question", fontSize=30.sp)
-                        Spacer(modifier=Modifier.width(10.dp))
-                        Button(onClick = {clearCount.value = clearCount.value+1}) {
-                            Text("Clear")
-                        }
-                    }
-                    BoxWithConstraints() {
-                        AndroidView(modifier = Modifier
-                            .size(maxWidth, maxHeight),
-                            factory = {context ->
-                                DrawingCanvas(context, cardData.question).apply { setStrokeColor(penColor.toArgb()) }
-                            },
-                            update = {
-                                it.clearCanvas(clearCount.value)
-                                it.maybeNewBackground(cardData.question)
-                            }
-                        )
-
-                    }
-                }
+                ClearableCanvas(penColor, "Question", clearCount.value, { clearCount.value += 1 }, {}, bgBmp = cardData.question)
             }
             Divider(color= Color.Blue, thickness = 2.dp)
             Box(modifier=Modifier.weight(1f)) {
