@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,31 +30,62 @@ import androidx.compose.ui.unit.sp
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DeckListActivity : ComponentActivity() {
     private var _url : Uri? = null
 
-    val getRootDirUrl = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) {
+    private val getRootDirUrl = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) {
         contentResolver.takePersistableUriPermission(it,
             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         openRootDir(it)
     }
 
-    val files = MutableLiveData(emptyList<DocumentFile>())
+    private val files = MutableLiveData(emptyList<DocumentFile>())
+    private val cardStats = MutableLiveData(emptyList<String>())
 
-    fun openRootDir(url: Uri) {
+    private fun openRootDir(url: Uri) {
         _url = url
         val rootDir = DocumentFile.fromTreeUri(this, url) ?: throw Exception("Can't open dir")
-        files.value = rootDir.listFiles()
+        val newFiles = rootDir.listFiles()
             .filter { it.isDirectory }
             .sortedByDescending { it.name }
+
+        cardStats.value = newFiles.map { "N/N" }
+        files.value = newFiles
+        startLoadCardStats()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // return from other activity, etc.
+        if(true == files.value?.isNotEmpty()) {
+            startLoadCardStats()
+        }
+    }
+
+    private fun startLoadCardStats() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val newStats = files.value!!.map {
+                loadFireCount(it)
+            }
+            withContext(Dispatchers.Main) {
+                cardStats.value = newStats
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         setContent {
-            DeckList(files, { dir ->
+            DeckList(files, cardStats,
+                            { dir ->
                                 Intent(this, QAActivity::class.java).also {
                                     it.data = dir.uri
                                     startActivity(it)
@@ -79,15 +111,27 @@ class DeckListActivity : ComponentActivity() {
             getRootDirUrl.launch(null)
         }
     }
+
+    private fun loadFireCount(deckDir: DocumentFile) : String {
+        val deckParser = DeckParser(deckDir, contentResolver)
+        deckParser.listFiles()
+        val cardList = deckParser.filterValidCardList()
+        val total = cardList.size
+        val fireNum = cardList.filter{ it.isFire }.size
+        return "$fireNum/$total"
+    }
 }
 
 @Composable
-fun Deck(deckDir: DocumentFile, onOpenDeck : ()->Unit, onAddCards: () -> Unit, onCardList: () -> Unit) {
-    var expanded = remember { mutableStateOf(false) }
+fun Deck(deckDir: DocumentFile, cardStats: String,  onOpenDeck : ()->Unit, onAddCards: () -> Unit, onCardList: () -> Unit) {
+    val expanded = remember { mutableStateOf(false) }
     Card(border= BorderStroke(2.dp, Color.Black)) {
         Row(modifier=Modifier.clickable(onClick = onOpenDeck).padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(deckDir.name!!, fontSize = 20.sp, modifier=Modifier.weight(9f))
-            Box(modifier=Modifier.weight(1f)) {
+
+            Text(cardStats, fontSize = 20.sp, modifier=Modifier.weight(1f))
+
+            Box(modifier=Modifier.weight(0.5f)) {
                 IconButton(onClick= {expanded.value = true}) {
                     Icon(Icons.Default.MoreVert, contentDescription = "Deck menu")
                 }
@@ -112,12 +156,13 @@ fun Deck(deckDir: DocumentFile, onOpenDeck : ()->Unit, onAddCards: () -> Unit, o
 }
 
 @Composable
-fun DeckList(deckDirs: LiveData<List<DocumentFile>>, gotoDeck : (dir: DocumentFile)->Unit, gotoAddCards : (dir: DocumentFile)->Unit, gotoCardList: (dir:DocumentFile)->Unit) {
+fun DeckList(deckDirs: LiveData<List<DocumentFile>>, cardStats: LiveData<List<String>>, gotoDeck : (dir: DocumentFile)->Unit, gotoAddCards : (dir: DocumentFile)->Unit, gotoCardList: (dir:DocumentFile)->Unit) {
     val deckListState = deckDirs.observeAsState(emptyList())
+    val cardStatsState = cardStats.observeAsState(emptyList())
+
     Column(modifier= Modifier.padding(10.dp).verticalScroll(rememberScrollState())) {
-        deckListState.value.forEach {
-            Deck(it, { gotoDeck(it) }, { gotoAddCards(it) }, { gotoCardList(it) })
+        deckListState.value.forEachIndexed { index, dir->
+            Deck(dir, cardStatsState.value[index], { gotoDeck(dir) }, { gotoAddCards(dir) }, { gotoCardList(dir) })
         }
     }
-
 }
