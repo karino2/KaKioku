@@ -16,7 +16,13 @@ data class CardData(val question: Bitmap, val answer: Bitmap, val level: Int) {
         1->3
         else -> minOf(8, level+1)
     }
-    fun nextLevelHard() = maxOf(3, level-1)
+    fun nextLevelHard() = maxOf(3, when(level) {
+        3->3
+        4->4
+        5->4
+        else -> minOf(level-1, 5)
+
+    })
     fun nextLevelRetry() = 1
 }
 
@@ -44,10 +50,10 @@ data class CardDataSource(val id: String, val question: DocumentFile, val answer
             2 -> 10
             3 -> (60*24)
             4 -> (60*24)*2
-            5 -> (60*24)* 7
-            6 -> (60*24)* 14
-            7 -> (60*24)* 20
-            else -> (60*24)* 30
+            5 -> (60*24)* 5
+            6 -> (60*24)* 9
+            7 -> (60*24)* 14
+            else -> (60*24)* 20
         }
     }
 
