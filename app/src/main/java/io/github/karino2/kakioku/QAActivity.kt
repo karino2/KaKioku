@@ -1,5 +1,6 @@
 package io.github.karino2.kakioku
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -10,13 +11,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.documentfile.provider.DocumentFile
@@ -47,6 +51,15 @@ class QAActivity : ComponentActivity() {
         targetCard.value = cardIO.loadCard(cardSrc)
     }
 
+    private var requireReload = false
+    override fun onStart() {
+        super.onStart()
+        if(requireReload) {
+            requireReload = false
+            targetCard.value = cardIO.loadCard(targetCardSource)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,7 +78,7 @@ class QAActivity : ComponentActivity() {
         setContent {
             val cardState = targetCard.observeAsState()
             cardState.value?.let {
-                Content(normalColors().writingColor,  it) { nextLevel ->
+                Content(normalColors().writingColor,  it, onResult = { nextLevel ->
                     val updated = targetCardSource.copyWithLevel(nextLevel)
                     cardIO.updateData(updated)
                     cardQueue.pushRest(updated)
@@ -79,7 +92,14 @@ class QAActivity : ComponentActivity() {
                         else
                             finish()  // all done
                     }
-                }
+                }, gotoEdit= {
+                    Intent(this, EditCardActivity::class.java).also { intent->
+                        intent.data = dirUrl
+                        intent.putExtra("ID_KEY", targetCardSource.id)
+                        requireReload = true
+                        startActivity(intent)
+                    }
+                })
             }
         }
     }
@@ -91,10 +111,14 @@ fun RowScope.BottomButton(modifier: Modifier=Modifier, content: @Composable (Box
 }
 
 @Composable
-fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Unit) {
+fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Unit, gotoEdit: ()->Unit) {
     KaKiokuTheme {
         Column(modifier= Modifier.fillMaxHeight()) {
-            TopAppBar(title = { Text("title") })
+            TopAppBar(title = { Text("title") }, actions = {
+                IconButton(onClick={gotoEdit()}) {
+                    Icon(Icons.Filled.Edit, "Edit Card")
+                }
+            })
 
             val clearCount = remember { mutableStateOf(0) }
             val peeping = remember {mutableStateOf(false) }
