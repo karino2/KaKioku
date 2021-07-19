@@ -3,25 +3,22 @@ package io.github.karino2.kakioku
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +31,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 
 class DeckListActivity : ComponentActivity() {
     private var _url : Uri? = null
@@ -79,32 +78,54 @@ class DeckListActivity : ComponentActivity() {
         }
     }
 
+    fun showMessage(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+
+    private fun addNewDeck(newDeckName: String) {
+        val rootDir = _url?.let { DocumentFile.fromTreeUri(this, it) } ?: throw Exception("Can't open dir")
+        try {
+            rootDir.createDirectory(newDeckName)
+            openRootDir(_url!!)
+        } catch(_: Exception) {
+            showMessage("Can't create deck directory ($newDeckName).")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 
         setContent {
-            DeckList(files, cardStats,
-                            { dir ->
-                                Intent(this, QAActivity::class.java).also {
-                                    it.data = dir.uri
-                                    startActivity(it)
-                                }
-                            },
-                            { dir ->
-                                Intent(this, AddCardActivity::class.java).also {
-                                    it.data = dir.uri
-                                    startActivity(it)
-                                }
-                            },
-                            {
-                                dir ->
-                                Intent(this, CardListActivity::class.java).also {
-                                    it.data = dir.uri
-                                    startActivity(it)
-                                }
-                            }
-                        )
+            Column {
+                val showDialog = rememberSaveable { mutableStateOf(false) }
+                TopAppBar(title={Text("Deck List")}, actions = {
+                    IconButton(onClick={ showDialog.value = true }) {
+                        Icon(Icons.Filled.Add, "New Deck")
+                    }
+                })
+                if (showDialog.value) {
+                    NewDeckPopup(onNewDeck = { addNewDeck(it) }, onDismiss= { showDialog.value = false })
+                }
+                DeckList(files, cardStats,
+                    { dir ->
+                        Intent(this@DeckListActivity, QAActivity::class.java).also {
+                            it.data = dir.uri
+                            startActivity(it)
+                        }
+                    },
+                    { dir ->
+                        Intent(this@DeckListActivity, AddCardActivity::class.java).also {
+                            it.data = dir.uri
+                            startActivity(it)
+                        }
+                    },
+                    { dir ->
+                        Intent(this@DeckListActivity, CardListActivity::class.java).also {
+                            it.data = dir.uri
+                            startActivity(it)
+                        }
+                    }
+                )
+            }
         }
 
         if (_url == null) {
@@ -123,10 +144,50 @@ class DeckListActivity : ComponentActivity() {
 }
 
 @Composable
+fun NewDeckPopup(onNewDeck : (deckName: String)->Unit, onDismiss: ()->Unit) {
+    var textState by remember { mutableStateOf("") }
+    val requester = FocusRequester()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            Column {
+                TextField(value = textState, onValueChange={textState = it}, modifier= Modifier
+                    .fillMaxWidth()
+                    .focusRequester(requester),
+                placeholder = { Text("New deck name")})
+                DisposableEffect(Unit) {
+                    requester.requestFocus()
+                    onDispose {}
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick= {
+                onDismiss()
+                if(textState != "") {
+                    onNewDeck(textState)
+                }
+            }) {
+                Text("CREATE")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick= onDismiss) {
+                Text("CANCEL")
+                Spacer(modifier = Modifier.width(5.dp))
+            }
+        }
+
+    )
+}
+
+@Composable
 fun Deck(deckDir: DocumentFile, cardStats: String,  onOpenDeck : ()->Unit, onAddCards: () -> Unit, onCardList: () -> Unit) {
     val expanded = remember { mutableStateOf(false) }
     Card(border= BorderStroke(2.dp, Color.Black)) {
-        Row(modifier=Modifier.clickable(onClick = onOpenDeck).padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier= Modifier
+            .clickable(onClick = onOpenDeck)
+            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(deckDir.name!!, fontSize = 20.sp, modifier=Modifier.weight(9f))
 
             Text(cardStats, fontSize = 20.sp, modifier=Modifier.weight(1f))
@@ -160,7 +221,9 @@ fun DeckList(deckDirs: LiveData<List<DocumentFile>>, cardStats: LiveData<List<St
     val deckListState = deckDirs.observeAsState(emptyList())
     val cardStatsState = cardStats.observeAsState(emptyList())
 
-    Column(modifier= Modifier.padding(10.dp).verticalScroll(rememberScrollState())) {
+    Column(modifier= Modifier
+        .padding(10.dp)
+        .verticalScroll(rememberScrollState())) {
         deckListState.value.forEachIndexed { index, dir->
             Deck(dir, cardStatsState.value[index], { gotoDeck(dir) }, { gotoAddCards(dir) }, { gotoCardList(dir) })
         }
