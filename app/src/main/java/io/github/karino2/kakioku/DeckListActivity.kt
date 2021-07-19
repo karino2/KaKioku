@@ -48,14 +48,23 @@ class DeckListActivity : ComponentActivity() {
 
     private fun openRootDir(url: Uri) {
         _url = url
-        val rootDir = DocumentFile.fromTreeUri(this, url) ?: throw Exception("Can't open dir")
-        val newFiles = rootDir.listFiles()
-            .filter { it.isDirectory }
-            .sortedByDescending { it.name }
+        reloadDeckList(url)
+    }
+
+    private fun reloadDeckList(url: Uri) {
+        val newFiles = listFiles(url)
 
         cardStats.value = newFiles.map { "N/N" }
         files.value = newFiles
         startLoadCardStats()
+    }
+
+    private fun listFiles(url: Uri): List<DocumentFile> {
+        val rootDir = DocumentFile.fromTreeUri(this, url) ?: throw Exception("Can't open dir")
+        val newFiles = rootDir.listFiles()
+            .filter { it.isDirectory }
+            .sortedByDescending { it.name }
+        return newFiles
     }
 
     override fun onStart() {
@@ -63,7 +72,7 @@ class DeckListActivity : ComponentActivity() {
 
         // return from other activity, etc.
         if(true == files.value?.isNotEmpty()) {
-            startLoadCardStats()
+            reloadDeckList(_url!!)
         }
     }
 
