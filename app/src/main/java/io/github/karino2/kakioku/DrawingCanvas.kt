@@ -27,8 +27,7 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        bmpCanvas = Canvas(bitmap)
+        setupNewCanvasBitmap(w, h)
         drawInitialBitmap()
         onUpdate(bitmap)
     }
@@ -38,11 +37,16 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
     }
 
     private fun clearCanvas() {
-        bitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888);
-        bmpCanvas = Canvas(bitmap)
+        setupNewCanvasBitmap(bitmap.width, bitmap.height)
         drawInitialBitmap()
         onUpdate(bitmap)
         invalidate()
+    }
+
+    private fun setupNewCanvasBitmap(w: Int, h: Int) {
+        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.WHITE)
+        bmpCanvas = Canvas(bitmap)
     }
 
     private fun drawInitialBitmap() {
