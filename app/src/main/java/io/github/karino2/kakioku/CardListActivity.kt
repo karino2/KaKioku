@@ -86,7 +86,7 @@ class CardListActivity : ComponentActivity() {
     }
 }
 
-val blankBitmap: Bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.RED) }
+val blankBitmap: Bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.LTGRAY) }
 
 @ExperimentalMaterialApi
 @Composable
