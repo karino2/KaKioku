@@ -1,8 +1,10 @@
 package io.github.karino2.kakioku
 
 import android.content.ContentResolver
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.widget.Toast
 import androidx.documentfile.provider.DocumentFile
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -139,6 +141,24 @@ class CardIO(val resolver: ContentResolver) {
 }
 
 class DeckParser(val dir: DocumentFile, val resolver: ContentResolver) {
+    companion object {
+        private const val LAST_ROOT_DIR_KEY = "last_root_url"
+
+        fun lastUriStr(ctx: Context) = sharedPreferences(ctx).getString(LAST_ROOT_DIR_KEY, null)
+        fun writeLastUriStr(ctx: Context, path : String) = sharedPreferences(ctx).edit()
+            .putString(LAST_ROOT_DIR_KEY, path)
+            .commit()
+
+        fun resetLastUriStr(ctx: Context) = sharedPreferences(ctx).edit()
+            .putString(LAST_ROOT_DIR_KEY, null)
+            .commit()
+
+        private fun sharedPreferences(ctx: Context) = ctx.getSharedPreferences("KAKIOKU", Context.MODE_PRIVATE)
+
+        fun showMessage(ctx: Context, msg : String) = Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
+
+    }
+
     data class TmpCardDataSource(val id: String, val question: DocumentFile? = null, val answer: DocumentFile? = null, val data: DocumentFile? = null,
                                  val date: Date? = null, val level: Int = 0) {
         val isValid : Boolean
