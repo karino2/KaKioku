@@ -6,8 +6,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.documentfile.provider.DocumentFile
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
 import io.github.karino2.kakioku.ui.theme.normalColors
@@ -40,7 +44,12 @@ class EditCardActivity : ComponentActivity() {
         setContent {
             KaKiokuTheme {
                 Column {
-                    TopAppBar(title = { Text("title") })
+                    TopAppBar(title = { Text("title") },
+                        navigationIcon = {
+                            IconButton(onClick = { finish() }) {
+                                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        })
                     EditCard(colors, card.question, card.answer, { qbmp = it }, { abmp = it }, {
                         updateCardBmp(qbmp, abmp)
                         finish()

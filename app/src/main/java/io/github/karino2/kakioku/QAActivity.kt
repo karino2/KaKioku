@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
@@ -105,7 +106,7 @@ class QAActivity : ComponentActivity() {
                         requireReload = true
                         startActivity(intent)
                     }
-                })
+                }, onBack= { finish() })
             }
         }
     }
@@ -120,14 +121,19 @@ fun RowScope.BottomButton(modifier: Modifier=Modifier, content: @Composable (Box
 }
 
 @Composable
-fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Unit, gotoEdit: ()->Unit) {
+fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Unit, gotoEdit: ()->Unit, onBack: ()->Unit) {
     KaKiokuTheme {
         Column(modifier= Modifier.fillMaxHeight()) {
             TopAppBar(title = { Text("title") }, actions = {
                 IconButton(onClick={gotoEdit()}) {
                     Icon(Icons.Filled.Edit, "Edit Card")
                 }
-            })
+            },
+                navigationIcon = {
+                    IconButton(onClick = { onBack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                })
 
             val clearCount = remember { mutableStateOf(0) }
             val peeping = remember {mutableStateOf(false) }

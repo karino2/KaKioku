@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +49,12 @@ class AddCardActivity : ComponentActivity() {
         setContent {
             KaKiokuTheme {
                 Column {
-                    TopAppBar(title = { Text("title") })
+                    TopAppBar(title = { Text("title") },
+                        navigationIcon = {
+                            IconButton(onClick = { finish() }) {
+                                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
+                        })
                     AddCard(colors, { qbmp = it }, { abmp = it }, {
                         saveCard(qbmp!!, abmp!!)
                     })
