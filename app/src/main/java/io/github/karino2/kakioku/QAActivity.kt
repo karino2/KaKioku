@@ -7,12 +7,16 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
+import io.github.karino2.kakioku.ui.theme.Purple700
+import io.github.karino2.kakioku.ui.theme.normalActionColors
 import io.github.karino2.kakioku.ui.theme.normalColors
 
 
@@ -107,7 +113,10 @@ class QAActivity : ComponentActivity() {
 
 @Composable
 fun RowScope.BottomButton(modifier: Modifier=Modifier, content: @Composable (BoxScope.() -> Unit)) {
-    Box(modifier=modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center, content = content)
+    Box(modifier= modifier
+        .weight(1f)
+        .fillMaxHeight()
+        .border(1.dp, Color.White), contentAlignment = Alignment.Center, content = content)
 }
 
 @Composable
@@ -142,22 +151,32 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
                     }
                 }
             }
+
             BottomNavigation {
                 if (!isAnswered.value) {
                     BottomButton(modifier=Modifier.selectable(
                         selected = peeping.value,
                         onClick = { peeping.value = !peeping.value }
-                    )) {
-                        Text("Peep")
+                    ).background(color = if(peeping.value) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.primary)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(imageVector = Icons.Filled.Search, contentDescription = "Peep")
+                            Text("Peep")
+                        }
                     }
                     BottomButton(modifier=Modifier.clickable { isAnswered.value = true }) {
-                        Text("Answer")
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(imageVector = Icons.Filled.Done, contentDescription = "Answer")
+                            Text("Answer")
+                        }
                     }
                 } else {
                     val onNext = fun(nextLevel:Int) {
                         onResult(nextLevel)
                         isAnswered.value = false
                     }
+                    val (retryColor, hardColor, normalColor) = normalActionColors()
+
                     // initial or retry or initial next. Every case has the same hard-normal next level.
                     if (cardData.level == 0 ||
                         cardData.level == 1 ||
@@ -167,12 +186,12 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
                         val nextLabel = if(cardData.level==0) "$normalIntervalMin min" else "1 day"
                         val retryLevel = if(cardData.level == 2) 0 else cardData.level
 
-                        BottomButton(modifier=Modifier.clickable { onNext(retryLevel) }) {
+                        BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
                             Column {
                                 Text("Retry")
                             }
                         }
-                        BottomButton(modifier=Modifier.clickable {  onNext(normalLevel) }) {
+                        BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
                             Column {
                                 Text(nextLabel)
                                 Text("Normal")
@@ -187,18 +206,19 @@ fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Uni
                         val normalIntervalDays = CardDataSource.levelToIntervalMin(normalLevel)/(60*24)
 
 
-                        BottomButton(modifier=Modifier.clickable { onNext(retryLevel) }) {
+
+                        BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
                             Column {
                                 Text("Retry")
                             }
                         }
-                        BottomButton(modifier=Modifier.clickable {  onNext(hardLevel) }) {
+                        BottomButton(modifier=Modifier.background(color=hardColor).clickable {  onNext(hardLevel) }) {
                             Column {
                                 Text("$hardIntervalDays days")
                                 Text("Hard")
                             }
                         }
-                        BottomButton(modifier=Modifier.clickable {  onNext(normalLevel) }) {
+                        BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
                             Column {
                                 Text("$normalIntervalDays days")
                                 Text("Normal")
