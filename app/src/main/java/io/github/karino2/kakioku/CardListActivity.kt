@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
@@ -58,6 +60,31 @@ class CardListActivity : ComponentActivity() {
         }
     }
 
+    val cardHeightDP by lazy {
+        val metrics = DisplayMetrics()
+        // display.getRealMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+
+        // density:
+        // Thus on a 160dpi screen this density value will be 1; on a 120 dpi screen it would be .75; etc.
+        //
+        // dpi        density
+        // 160: 120 = 1:0.75
+        // 160: 200 = 1:1.25
+
+        // for example, width is 800px case. what is the dip of width?
+        // 800px = 800/density dip
+
+        // realWidth = width
+        // realHeight = height*0.8/2
+
+        // cardWidth = width/2
+        // cardHeight = height*0.8/4
+
+
+        (metrics.heightPixels*0.2/metrics.density).dp
+    }
+
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +103,7 @@ class CardListActivity : ComponentActivity() {
                             Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                         }
                     })
-                CardList(cardList, cardIO) {card->
+                CardList(cardList, cardIO, cardHeightDP) {card->
                     Intent(this@CardListActivity, EditCardActivity::class.java).also {
                         it.data = dirUrl
                         it.putExtra("ID_KEY", card.id)
@@ -98,7 +125,7 @@ val blankBitmap: Bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
 
 @ExperimentalMaterialApi
 @Composable
-fun CardList(cards: LiveData<List<CardDataSource>>, cardIO: CardIO, onClick: (card: CardDataSource)->Unit) {
+fun CardList(cards: LiveData<List<CardDataSource>>, cardIO: CardIO, cardHeightDP: Dp, onClick: (card: CardDataSource)->Unit) {
     val cardsState = cards.observeAsState()
     val loaderScope = rememberCoroutineScope()
     LazyColumn {
@@ -113,11 +140,11 @@ fun CardList(cards: LiveData<List<CardDataSource>>, cardIO: CardIO, onClick: (ca
                             qImageState.value = loadedCard.question
                             aImageState.value = loadedCard.answer
                         }
-                        Box(modifier= Modifier.height(250.dp).weight(1f).padding(5.dp, 10.dp)) {
+                        Box(modifier= Modifier.height(cardHeightDP).weight(1f).padding(5.dp, 10.dp)) {
                             Image(qImageState.value.asImageBitmap(), "Question Image")
                         }
                         Divider(color= androidx.compose.ui.graphics.Color.LightGray, thickness = 2.dp, modifier= Modifier.fillMaxHeight().width(2.dp))
-                        Box(modifier= Modifier.height(250.dp).weight(1f).padding(5.dp, 10.dp)) {
+                        Box(modifier= Modifier.height(cardHeightDP).weight(1f).padding(5.dp, 10.dp)) {
                             Image(aImageState.value.asImageBitmap(), "Answer Image")
                         }
                     }

@@ -215,29 +215,32 @@ fun Deck(deckDir: DocumentFile, cardStats: String,  onOpenDeck : ()->Unit, onAdd
         Row(modifier= Modifier
             .clickable(onClick = onOpenDeck)
             .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(deckDir.name!!, fontSize = 20.sp, modifier=Modifier.weight(9f))
+            Text(deckDir.name!!, fontSize = 20.sp, modifier=Modifier.weight(8f))
 
-            Text(cardStats, fontSize = 20.sp, modifier=Modifier.weight(1f))
+            Row(modifier=Modifier.weight(2.5f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
+                Text(cardStats, fontSize = 20.sp)
+                Box {
+                    IconButton(onClick= {expanded.value = true}) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Deck menu")
+                    }
+                    DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
+                        DropdownMenuItem(onClick = {
+                            expanded.value = false
+                            onAddCards()
+                        }) {
+                            Text("Add Cards")
+                        }
+                        DropdownMenuItem(onClick = {
+                            expanded.value = false
+                            onCardList()
+                        }) {
+                            Text("Card List")
+                        }
+                    }
+                }
 
-            Box(modifier=Modifier.weight(0.5f)) {
-                IconButton(onClick= {expanded.value = true}) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Deck menu")
-                }
-                DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
-                    DropdownMenuItem(onClick = {
-                        expanded.value = false
-                        onAddCards()
-                    }) {
-                        Text("Add Cards")
-                    }
-                    DropdownMenuItem(onClick = {
-                        expanded.value = false
-                        onCardList()
-                    }) {
-                        Text("Card List")
-                    }
-                }
             }
+
         }
     }
 
