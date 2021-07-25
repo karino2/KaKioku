@@ -49,7 +49,7 @@ class AddCardActivity : ComponentActivity() {
         setContent {
             KaKiokuTheme {
                 Column {
-                    TopAppBar(title = { Text("title") },
+                    TopAppBar(title = { Text(deckDir.name!!) },
                         navigationIcon = {
                             IconButton(onClick = { finish() }) {
                                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")

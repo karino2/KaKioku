@@ -85,7 +85,7 @@ class QAActivity : ComponentActivity() {
         setContent {
             val cardState = targetCard.observeAsState()
             cardState.value?.let {
-                Content(normalColors().writingColor,  it, onResult = { nextLevel ->
+                Content(normalColors().writingColor,  it, deckDir.name!!, onResult = { nextLevel ->
                     val updated = targetCardSource.copyWithLevel(nextLevel)
                     cardIO.updateData(updated)
                     cardQueue.pushRest(updated)
@@ -121,10 +121,10 @@ fun RowScope.BottomButton(modifier: Modifier=Modifier, content: @Composable (Box
 }
 
 @Composable
-fun Content(penColor: Color, cardData: CardData, onResult: (nextLevel: Int)->Unit, gotoEdit: ()->Unit, onBack: ()->Unit) {
+fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (nextLevel: Int)->Unit, gotoEdit: ()->Unit, onBack: ()->Unit) {
     KaKiokuTheme {
         Column(modifier= Modifier.fillMaxHeight()) {
-            TopAppBar(title = { Text("title") }, actions = {
+            TopAppBar(title = { Text(deckName) }, actions = {
                 IconButton(onClick={gotoEdit()}) {
                     Icon(Icons.Filled.Edit, "Edit Card")
                 }
