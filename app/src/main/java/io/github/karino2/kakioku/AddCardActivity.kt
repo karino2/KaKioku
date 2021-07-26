@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -140,7 +141,7 @@ fun EditCard(colors: CardColors, questionFg: Bitmap?, answerFg: Bitmap?, onQuest
         }
         BottomNavigation {
             BottomNavigationItem(
-                icon = {},
+                icon = { Icon(Icons.Filled.Save, contentDescription = "Save")},
                 label = { Text("Save") },
                 onClick = {
                     onSave()
