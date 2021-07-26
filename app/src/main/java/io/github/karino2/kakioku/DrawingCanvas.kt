@@ -24,12 +24,71 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
 
     private val path = Path()
 
+    private val undoList = UndoList()
+
+    val canUndo: Boolean
+        get() = undoList.canUndo
+
+    val canRedo: Boolean
+        get() = undoList.canRedo
+
+    private var undoCount = 0
+    private var redoCount = 0
+
+    fun undo(count: Int) {
+        if (undoCount != count) {
+            undoCount = count
+            undoList.undo(bmpCanvas)
+
+            refreshAfterUndoRedo()
+        }
+    }
+
+    fun redo(count: Int) {
+        if (redoCount != count) {
+            redoCount = count
+            undoList.redo(bmpCanvas)
+
+            refreshAfterUndoRedo()
+        }
+    }
+
+    private fun notifyUndoStateChanged() {
+        undoStateListener(canUndo, canRedo)
+    }
+
+
+    fun refreshAfterUndoRedo() {
+        notifyUndoStateChanged()
+        updateBmpListener(bitmap)
+        invalidate()
+    }
+
+    // use for short term temporary only.
+    private val tempRegion = RectF()
+    private val tempRect = Rect()
+    private fun pathBound(path: Path): Rect {
+        path.computeBounds(tempRegion, false)
+        tempRegion.roundOut(tempRect)
+        widen(tempRect, 5)
+        return tempRect
+    }
+
+    private fun widen(tmpInval: Rect, margin: Int) {
+        val newLeft = (tmpInval.left - margin).coerceAtLeast(0)
+        val newTop = (tmpInval.top - margin).coerceAtLeast(0)
+        val newRight = (tmpInval.right + margin).coerceAtMost(width)
+        val newBottom = (tmpInval.bottom + margin).coerceAtMost(height)
+        tmpInval.set(newLeft, newTop, newRight, newBottom)
+    }
+
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
         setupNewCanvasBitmap(w, h)
         drawInitialBitmap()
-        onUpdate(bitmap)
+        updateBmpListener(bitmap)
     }
 
     fun setStrokeColor(newColor: Int) {
@@ -39,7 +98,7 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
     private fun clearCanvas() {
         setupNewCanvasBitmap(bitmap.width, bitmap.height)
         drawInitialBitmap()
-        onUpdate(bitmap)
+        updateBmpListener(bitmap)
         invalidate()
     }
 
@@ -59,7 +118,13 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
             return
         clearCount = count
         initialBmp = null
+
+        val old = bitmap.copy(bitmap.config, true)
+
         clearCanvas()
+
+        undoList.pushUndoCommand(0, 0, old, bitmap.copy(bitmap.config, true))
+        notifyUndoStateChanged()
     }
 
     fun maybeNewBackground(bgbmp: Bitmap) {
@@ -67,6 +132,9 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
             return
         background = bgbmp
         clearCanvas()
+
+        undoList.clear()
+        notifyUndoStateChanged()
     }
 
     private fun drawBitmap(bitmap: Bitmap?) {
@@ -115,8 +183,28 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
                 if (downHandled) {
                     downHandled = false
                     path.lineTo(x, y)
+
+
+                    val region = pathBound(path)
+                    val undo = Bitmap.createBitmap(
+                        bitmap,
+                        region.left,
+                        region.top,
+                        region.width(),
+                        region.height()
+                    )
                     bmpCanvas.drawPath(path, pathPaint)
-                    onUpdate(bitmap)
+                    val redo = Bitmap.createBitmap(
+                        bitmap,
+                        region.left,
+                        region.top,
+                        region.width(),
+                        region.height()
+                    )
+                    undoList.pushUndoCommand(region.left, region.top, undo, redo)
+
+                    notifyUndoStateChanged()
+                    updateBmpListener(bitmap)
                     path.reset()
                     invalidate()
                 }
@@ -131,10 +219,15 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
         canvas.drawPath(path, pathPaint)
     }
 
-    var onUpdate: (bmp: Bitmap) -> Unit = {}
+    var updateBmpListener: (bmp: Bitmap) -> Unit = {}
 
     fun setOnUpdateListener(updateBmpListener: (bmp: Bitmap) -> Unit) {
-        onUpdate = updateBmpListener
+        this.updateBmpListener = updateBmpListener
+    }
+
+    private var undoStateListener: (undo: Boolean, redo: Boolean) -> Unit = { _, _ -> }
+    fun setOnUndoStateListener(undoStateListener: (undo: Boolean, redo: Boolean) -> Unit) {
+        this.undoStateListener = undoStateListener
     }
 
 

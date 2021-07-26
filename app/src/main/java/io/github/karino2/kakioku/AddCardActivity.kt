@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Redo
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -93,11 +95,23 @@ class AddCardActivity : ComponentActivity() {
 @Composable
 fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()->Unit, onUpdateBmp: (bmp: Bitmap)->Unit, foregroundBmp: Bitmap? = null, backgroundBmp: Bitmap? = null) {
     Column {
+        val canUndoState = remember { mutableStateOf(false) }
+        val canRedoState = remember { mutableStateOf(false) }
+        val undoCount = remember { mutableStateOf(0) }
+        val redoCount = remember { mutableStateOf(0) }
+
         Row(verticalAlignment= Alignment.CenterVertically) {
             Text(label, fontSize=30.sp)
             Spacer(modifier= Modifier.width(10.dp))
             Button(onClick = onClear) {
                 Text("Clear")
+            }
+            Spacer(modifier= Modifier.width(10.dp))
+            IconButton(onClick = { undoCount.value = undoCount.value+1 }, enabled = canUndoState.value) {
+                Icon(Icons.Filled.Undo, contentDescription = "undo")
+            }
+            IconButton(onClick = { redoCount.value = redoCount.value+1 }, enabled = canRedoState.value) {
+                Icon(Icons.Filled.Redo, contentDescription = "redo")
             }
         }
         BoxWithConstraints() {
@@ -107,6 +121,10 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
                     DrawingCanvas(context, backgroundBmp, foregroundBmp).apply {
                         setOnUpdateListener(onUpdateBmp)
                         setStrokeColor(penColor.toArgb())
+                        setOnUndoStateListener { undo, redo ->
+                            canUndoState.value = undo
+                            canRedoState.value = redo
+                        }
                     }
                 },
                 update = {
@@ -114,6 +132,8 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
                     backgroundBmp?.let { bg ->
                         it.maybeNewBackground(bg)
                     }
+                    it.undo(undoCount.value)
+                    it.redo(redoCount.value)
                 }
             )
 
