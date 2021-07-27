@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">カキオク</string>
+    <string name="label_cant_open_dir">ディレクトリが開けません</string>
+    <string name="label_cant_open_file">ファイルが開けません:</string>
+    <string name="label_clear">消去</string>
+    <string name="label_question">問題</string>
+    <string name="label_answer">答え</string>
+    <string name="label_save">保存</string>
+    <string name="label_not_directory">ディレクトリではありません</string>
+    <string name="label_cant_create_deck_directory">デッキのディレクトリが作成出来ません</string>
+    <string name="label_cant_open_dir_please_reopen">ディレクトリが開けません。開き直してください。</string>
+    <string name="label_deck_list">デッキ一覧</string>
+    <string name="label_new_deck_name">デッキの名前</string>
+    <string name="label_create">作成</string>
+    <string name="label_add_cards">カードを追加</string>
+    <string name="label_view_card_list">カード一覧</string>
+    <string name="label_all_cards_done">全カードが済みです</string>
+    <string name="label_peep">チラ見</string>
+    <string name="label_goto_answer">解答へ</string>
+    <string name="label_retry">もう一回</string>
+    <string name="label_normal">普通</string>
+    <string name="label_hard">難しい</string>
+    <string name="label_days">日</string>
+</resources>

@@ -193,12 +193,12 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
                         val retryLevel = if(cardData.level == 2) 0 else cardData.level
 
                         BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
-                            Column {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(stringResource(R.string.label_retry))
                             }
                         }
                         BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
-                            Column {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(nextLabel)
                                 Text(stringResource(R.string.label_normal))
                             }
@@ -215,18 +215,18 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
 
 
                         BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
-                            Column {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(stringResource(R.string.label_retry))
                             }
                         }
                         BottomButton(modifier=Modifier.background(color=hardColor).clickable {  onNext(hardLevel) }) {
-                            Column {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("$hardIntervalDays$labelDays")
                                 Text(stringResource(R.string.label_hard))
                             }
                         }
                         BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
-                            Column {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("$normalIntervalDays$labelDays")
                                 Text(stringResource(R.string.label_normal))
                             }
