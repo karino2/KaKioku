@@ -6,11 +6,11 @@ import android.view.MotionEvent
 import android.view.View
 
 class DrawingCanvas(context: Context, var background: Bitmap? = null, var initialBmp: Bitmap? = null) : View(context) {
-    lateinit var bitmap: Bitmap
+    private lateinit var bitmap: Bitmap
     private lateinit var bmpCanvas: Canvas
     private var clearCount = 0
 
-    val pathPaint = Paint().apply {
+    private val pathPaint = Paint().apply {
         isAntiAlias = true
         isDither = true
         color = 0xFF000000.toInt()
@@ -58,7 +58,7 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
     }
 
 
-    fun refreshAfterUndoRedo() {
+    private fun refreshAfterUndoRedo() {
         notifyUndoStateChanged()
         updateBmpListener(bitmap)
         invalidate()

@@ -37,23 +37,23 @@ import io.github.karino2.kakioku.ui.theme.normalColors
 
 
 class QAActivity : ComponentActivity() {
-    lateinit var dirUrl : Uri
-    val deckDir by lazy {
+    private lateinit var dirUrl : Uri
+    private val deckDir by lazy {
         DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
     }
 
-    val cardQueue by lazy {
+    private val cardQueue by lazy {
         val deckParser = DeckParser(deckDir, contentResolver)
         deckParser.listFiles()
         CardQueue(deckParser.filterValidCardList()).apply { setup() }
     }
 
-    val cardIO by lazy { CardIO(contentResolver) }
+    private val cardIO by lazy { CardIO(contentResolver) }
 
-    val targetCard = MutableLiveData<CardData>()
-    lateinit var targetCardSource: CardDataSource
+    private val targetCard = MutableLiveData<CardData>()
+    private lateinit var targetCardSource: CardDataSource
 
-    fun setCardDataSource(cardSrc: CardDataSource) {
+    private fun setCardDataSource(cardSrc: CardDataSource) {
         targetCardSource = cardSrc
         targetCard.value = cardIO.loadCard(cardSrc)
     }

@@ -17,18 +17,18 @@ import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
 import io.github.karino2.kakioku.ui.theme.normalColors
 
 class EditCardActivity : ComponentActivity() {
-    lateinit var qbmp : Bitmap
-    lateinit var abmp : Bitmap
+    private lateinit var qbmp : Bitmap
+    private lateinit var abmp : Bitmap
 
-    lateinit var dirUrl : Uri
-    val deckDir by lazy {
+    private lateinit var dirUrl : Uri
+    private val deckDir by lazy {
         DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
     }
 
-    lateinit var cardId: String
+    private lateinit var cardId: String
 
-    val cardIO by lazy { CardIO(contentResolver) }
-    val cardSource by lazy { cardIO.loadCardDataSource(deckDir, cardId) }
+    private val cardIO by lazy { CardIO(contentResolver) }
+    private val cardSource by lazy { cardIO.loadCardDataSource(deckDir, cardId) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

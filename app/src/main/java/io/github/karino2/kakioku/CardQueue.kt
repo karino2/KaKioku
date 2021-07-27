@@ -165,18 +165,18 @@ class DeckParser(val dir: DocumentFile, val resolver: ContentResolver) {
             get() = question != null && answer != null && data!= null && date != null
     }
 
-    val cardDict = mutableMapOf<String, TmpCardDataSource>()
+    private val cardDict = mutableMapOf<String, TmpCardDataSource>()
 
-    fun splitFileName(name: String) : Pair<String, String>? {
+    private fun splitFileName(name: String) : Pair<String, String>? {
         val sep = name.lastIndexOf("_")
         if (sep == -1)
             return null
         return Pair(name.substring(0, sep), name.substring(sep+1))
     }
 
-    val cardIO by lazy { CardIO(resolver) }
+    private val cardIO by lazy { CardIO(resolver) }
 
-    fun parseData(dfile: DocumentFile) = cardIO.parseData(dfile)
+    private fun parseData(dfile: DocumentFile) = cardIO.parseData(dfile)
 
     fun listFiles() {
         dir.listFiles().forEach { file->
@@ -202,9 +202,9 @@ class DeckParser(val dir: DocumentFile, val resolver: ContentResolver) {
 
 }
 
-class CardQueue(val cards: List<CardDataSource>) {
-    val target = mutableListOf<CardDataSource>()
-    val rest = mutableListOf<CardDataSource>().apply{ addAll(cards) }
+class CardQueue(private val cards: List<CardDataSource>) {
+    private val target = mutableListOf<CardDataSource>()
+    private val rest = mutableListOf<CardDataSource>().apply{ addAll(cards) }
 
     fun setup() {
         target.addAll( rest.filter { it.isFire } )

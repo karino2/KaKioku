@@ -32,11 +32,11 @@ import java.util.*
 
 class AddCardActivity : ComponentActivity() {
 
-    var qbmp : Bitmap? = null
-    var abmp : Bitmap? = null
+    private var qbmp : Bitmap? = null
+    private var abmp : Bitmap? = null
 
-    lateinit var dirUrl : Uri
-    val deckDir by lazy {
+    private lateinit var dirUrl : Uri
+    private val deckDir by lazy {
         DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
     }
 
@@ -66,8 +66,8 @@ class AddCardActivity : ComponentActivity() {
         }
     }
 
-    val cardIO by lazy { CardIO(contentResolver) }
-    fun createId() = Date().time
+    private val cardIO by lazy { CardIO(contentResolver) }
+    private fun createId() = Date().time
 
     private fun saveCard(qbmp: Bitmap, abmp: Bitmap) {
         val id = createId()

@@ -33,24 +33,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CardListActivity : ComponentActivity() {
-    lateinit var dirUrl : Uri
-    val deckDir by lazy {
+    private lateinit var dirUrl : Uri
+    private val deckDir by lazy {
         DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
     }
 
-    fun listValidCard() : List<CardDataSource> {
+    private fun listValidCard() : List<CardDataSource> {
         val deckParser = DeckParser(deckDir, contentResolver)
         deckParser.listFiles()
         return deckParser.filterValidCardList()
     }
 
-    val cardList = MutableLiveData<List<CardDataSource>>()
+    private val cardList = MutableLiveData<List<CardDataSource>>()
 
-    val cardIO by lazy {
+    private val cardIO by lazy {
         CardIO(contentResolver)
     }
 
-    var requireReload = false
+    private var requireReload = false
 
     override fun onStart() {
         super.onStart()
@@ -60,7 +60,7 @@ class CardListActivity : ComponentActivity() {
         }
     }
 
-    val cardHeightDP by lazy {
+    private val cardHeightDP by lazy {
         val metrics = DisplayMetrics()
         // display.getRealMetrics()
         windowManager.defaultDisplay.getMetrics(metrics)
