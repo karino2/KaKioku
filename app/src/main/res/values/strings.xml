@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">KaKioku</string>
+    <string name="label_cant_open_dir">Can\'t open dir.</string>
+    <string name="label_cant_open_file">Can\'t open file:</string>
+    <string name="label_clear">Clear</string>
+    <string name="label_question">Question</string>
+    <string name="label_answer">Answer</string>
+    <string name="label_save">Save</string>
+    <string name="label_not_directory">Not directory</string>
+    <string name="label_cant_create_deck_directory">Can\'t create deck directory</string>
+    <string name="label_cant_open_dir_please_reopen">Can\'t open dir. Please re-open.</string>
+    <string name="label_deck_list">Deck List</string>
+    <string name="label_new_deck_name">New deck name</string>
+    <string name="label_create">CREATE</string>
+    <string name="label_add_cards">Add Cards</string>
+    <string name="label_view_card_list">Card List</string>
+    <string name="label_all_cards_done">All cards done.</string>
+    <string name="label_peep">Peep</string>
+    <string name="label_goto_answer">Answer</string>
+    <string name="label_retry">Retry</string>
+    <string name="label_normal">Normal</string>
+    <string name="label_hard">Hard</string>
+    <string name="label_days">\ days</string>
 </resources>

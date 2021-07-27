@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -37,7 +38,7 @@ class AddCardActivity : ComponentActivity() {
 
     private lateinit var dirUrl : Uri
     private val deckDir by lazy {
-        DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
+        DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception(getString(R.string.label_cant_open_dir))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +79,7 @@ class AddCardActivity : ComponentActivity() {
         cardIO.savePng(deckDir, qbmp, qname)
         cardIO.savePng(deckDir, abmp, aname)
 
-        val dfile = deckDir.createFile("text/plain", dname) ?: throw Exception("Can't create file $dname")
+        val dfile = deckDir.createFile("text/plain", dname) ?: throw Exception(getString(R.string.label_cant_open_file) + " $dname")
         createDataFile(id, dfile)
 
     }
@@ -104,7 +105,7 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
             Text(label, fontSize=30.sp)
             Spacer(modifier= Modifier.width(10.dp))
             Button(onClick = onClear) {
-                Text("Clear")
+                Text(stringResource(R.string.label_clear))
             }
             Spacer(modifier= Modifier.width(10.dp))
             IconButton(onClick = { undoCount.value = undoCount.value+1 }, enabled = canUndoState.value) {
@@ -153,16 +154,16 @@ fun EditCard(colors: CardColors, questionFg: Bitmap?, answerFg: Bitmap?, onQuest
         val clearQCount = remember { mutableStateOf(0) }
         val clearACount = remember { mutableStateOf(0) }
         Box(modifier= Modifier.weight(1f)) {
-            ClearableCanvas(colors.qColor, "Question", clearQCount.value, { clearQCount.value += 1 }, onQuestionBmpUpdate, foregroundBmp = questionFg)
+            ClearableCanvas(colors.qColor, stringResource(R.string.label_question), clearQCount.value, { clearQCount.value += 1 }, onQuestionBmpUpdate, foregroundBmp = questionFg)
         }
         Divider(color= Color.Blue, thickness = 2.dp)
         Box(modifier= Modifier.weight(1f)) {
-            ClearableCanvas(colors.aColor, "Answer", clearACount.value, { clearACount.value += 1 }, onAnswerBmpUpdate, foregroundBmp = answerFg)
+            ClearableCanvas(colors.aColor, stringResource(R.string.label_answer), clearACount.value, { clearACount.value += 1 }, onAnswerBmpUpdate, foregroundBmp = answerFg)
         }
         BottomNavigation {
             BottomNavigationItem(
                 icon = { Icon(Icons.Filled.Save, contentDescription = "Save")},
-                label = { Text("Save") },
+                label = { Text(stringResource(R.string.label_save)) },
                 onClick = {
                     onSave()
                     clearQCount.value += 1

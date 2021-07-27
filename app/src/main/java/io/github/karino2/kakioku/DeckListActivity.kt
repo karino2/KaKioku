@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 
 class DeckListActivity : ComponentActivity() {
     private var _url : Uri? = null
@@ -64,9 +65,9 @@ class DeckListActivity : ComponentActivity() {
     }
 
     private fun listFiles(url: Uri): List<DocumentFile> {
-        val rootDir = DocumentFile.fromTreeUri(this, url) ?: throw Exception("Can't open dir")
+        val rootDir = DocumentFile.fromTreeUri(this, url) ?: throw Exception(getString(R.string.label_cant_open_dir))
         if (!rootDir.isDirectory)
-            throw Exception("Not directory")
+            throw Exception(getString(R.string.label_not_directory))
         return rootDir.listFiles()
             .filter { it.isDirectory }
             .sortedByDescending { it.name }
@@ -95,12 +96,12 @@ class DeckListActivity : ComponentActivity() {
     private fun showMessage(msg: String) = DeckParser.showMessage(this, msg)
 
     private fun addNewDeck(newDeckName: String) {
-        val rootDir = _url?.let { DocumentFile.fromTreeUri(this, it) } ?: throw Exception("Can't open dir")
+        val rootDir = _url?.let { DocumentFile.fromTreeUri(this, it) } ?: throw Exception(getString(R.string.label_cant_open_dir))
         try {
             rootDir.createDirectory(newDeckName)
             openRootDir(_url!!)
         } catch(_: Exception) {
-            showMessage("Can't create deck directory ($newDeckName).")
+            showMessage(getString(R.string.label_cant_create_deck_directory) + " ($newDeckName).")
         }
     }
 
@@ -111,7 +112,7 @@ class DeckListActivity : ComponentActivity() {
         setContent {
             Column {
                 val showDialog = rememberSaveable { mutableStateOf(false) }
-                TopAppBar(title={Text("Deck List")}, actions = {
+                TopAppBar(title={Text(getString(R.string.label_deck_list))}, actions = {
                     IconButton(onClick={ showDialog.value = true }) {
                         Icon(Icons.Filled.Add, "New Deck")
                     }
@@ -150,7 +151,7 @@ class DeckListActivity : ComponentActivity() {
                 return openRootDir(it)
             }
         } catch(_: Exception) {
-            showMessage("Can't open dir. Please re-open.")
+            showMessage(getString(R.string.label_cant_open_dir_please_reopen))
         }
         getRootDirUrl.launch(null)
     }
@@ -181,7 +182,7 @@ fun NewDeckPopup(onNewDeck : (deckName: String)->Unit, onDismiss: ()->Unit) {
                 TextField(value = textState, onValueChange={textState = it}, modifier= Modifier
                     .fillMaxWidth()
                     .focusRequester(requester),
-                placeholder = { Text("New deck name")})
+                placeholder = { Text(stringResource(R.string.label_new_deck_name))})
                 DisposableEffect(Unit) {
                     requester.requestFocus()
                     onDispose {}
@@ -195,12 +196,12 @@ fun NewDeckPopup(onNewDeck : (deckName: String)->Unit, onDismiss: ()->Unit) {
                     onNewDeck(textState)
                 }
             }) {
-                Text("CREATE")
+                Text(stringResource(R.string.label_create))
             }
         },
         dismissButton = {
             TextButton(onClick= onDismiss) {
-                Text("CANCEL")
+                Text(stringResource(android.R.string.cancel))
                 Spacer(modifier = Modifier.width(5.dp))
             }
         }
@@ -228,13 +229,13 @@ fun Deck(deckDir: DocumentFile, cardStats: String,  onOpenDeck : ()->Unit, onAdd
                             expanded.value = false
                             onAddCards()
                         }) {
-                            Text("Add Cards")
+                            Text(stringResource(R.string.label_add_cards))
                         }
                         DropdownMenuItem(onClick = {
                             expanded.value = false
                             onCardList()
                         }) {
-                            Text("Card List")
+                            Text(stringResource(R.string.label_view_card_list))
                         }
                     }
                 }

@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 class CardListActivity : ComponentActivity() {
     private lateinit var dirUrl : Uri
     private val deckDir by lazy {
-        DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
+        DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception(getString(R.string.label_cant_open_dir))
     }
 
     private fun listValidCard() : List<CardDataSource> {

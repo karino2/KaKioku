@@ -26,12 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import io.github.karino2.kakioku.ui.theme.KaKiokuTheme
-import io.github.karino2.kakioku.ui.theme.Purple700
 import io.github.karino2.kakioku.ui.theme.normalActionColors
 import io.github.karino2.kakioku.ui.theme.normalColors
 
@@ -39,7 +39,7 @@ import io.github.karino2.kakioku.ui.theme.normalColors
 class QAActivity : ComponentActivity() {
     private lateinit var dirUrl : Uri
     private val deckDir by lazy {
-        DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception("Cant open dir.")
+        DocumentFile.fromTreeUri(this, dirUrl) ?: throw Exception(getString(R.string.label_cant_open_dir))
     }
 
     private val cardQueue by lazy {
@@ -75,7 +75,7 @@ class QAActivity : ComponentActivity() {
         }
 
         if (cardQueue.isEnd) {
-            Toast.makeText(this, "All cards done.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.label_all_cards_done), Toast.LENGTH_LONG).show()
             finish()
         }
         else {
@@ -140,12 +140,12 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
             val isAnswered = remember { mutableStateOf(false) }
 
             Box(modifier=Modifier.weight(1f)) {
-                ClearableCanvas(penColor, "Question", clearCount.value, { clearCount.value += 1 }, {}, backgroundBmp = cardData.question)
+                ClearableCanvas(penColor, stringResource(R.string.label_question), clearCount.value, { clearCount.value += 1 }, {}, backgroundBmp = cardData.question)
             }
             Divider(color= Color.Blue, thickness = 2.dp)
             Box(modifier=Modifier.weight(1f)) {
                 Column {
-                    Text("Answer", fontSize=30.sp)
+                    Text(stringResource(R.string.label_answer), fontSize=30.sp)
                     BoxWithConstraints() {
                         if (peeping.value || isAnswered.value) {
                             Image(
@@ -167,13 +167,13 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(imageVector = Icons.Filled.Search, contentDescription = "Peep")
-                            Text("Peep")
+                            Text(stringResource(R.string.label_peep))
                         }
                     }
                     BottomButton(modifier=Modifier.clickable { isAnswered.value = true }) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(imageVector = Icons.Filled.Done, contentDescription = "Answer")
-                            Text("Answer")
+                            Text(stringResource(R.string.label_goto_answer))
                         }
                     }
                 } else {
@@ -194,13 +194,13 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
 
                         BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
                             Column {
-                                Text("Retry")
+                                Text(stringResource(R.string.label_retry))
                             }
                         }
                         BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
                             Column {
                                 Text(nextLabel)
-                                Text("Normal")
+                                Text(stringResource(R.string.label_normal))
                             }
                         }
 
@@ -210,24 +210,25 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
                         val normalLevel = cardData.nextLevelNormal()
                         val hardIntervalDays = CardDataSource.levelToIntervalMin(hardLevel)/(60*24)
                         val normalIntervalDays = CardDataSource.levelToIntervalMin(normalLevel)/(60*24)
+                        val labelDays = stringResource(R.string.label_days)
 
 
 
                         BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
                             Column {
-                                Text("Retry")
+                                Text(stringResource(R.string.label_retry))
                             }
                         }
                         BottomButton(modifier=Modifier.background(color=hardColor).clickable {  onNext(hardLevel) }) {
                             Column {
-                                Text("$hardIntervalDays days")
-                                Text("Hard")
+                                Text("$hardIntervalDays$labelDays")
+                                Text(stringResource(R.string.label_hard))
                             }
                         }
                         BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
                             Column {
-                                Text("$normalIntervalDays days")
-                                Text("Normal")
+                                Text("$normalIntervalDays$labelDays")
+                                Text(stringResource(R.string.label_normal))
                             }
                         }
 
