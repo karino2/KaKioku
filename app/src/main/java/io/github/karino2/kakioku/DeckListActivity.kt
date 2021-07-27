@@ -6,11 +6,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 
 class DeckListActivity : ComponentActivity() {
@@ -112,14 +110,18 @@ class DeckListActivity : ComponentActivity() {
         setContent {
             Column {
                 val showDialog = rememberSaveable { mutableStateOf(false) }
-                TopAppBar(title={Text(getString(R.string.label_deck_list))}, actions = {
-                    IconButton(onClick={ showDialog.value = true }) {
-                        Icon(Icons.Filled.Add, "New Deck")
-                    }
-                    IconButton(onClick={ getRootDirUrl.launch(null) }) {
-                        Icon(Icons.Filled.Settings, "Settings")
-                    }
-                })
+                TopAppBar(title={ Text(getString(R.string.label_deck_list)) },
+                    actions = {
+                        IconButton(onClick={ showDialog.value = true }) {
+                            Icon(Icons.Filled.Add, "New Deck")
+                        }
+                        IconButton(onClick={ getRootDirUrl.launch(null) }) {
+                            Icon(Icons.Filled.Settings, "Settings")
+                        }
+                    },
+                    navigationIcon = {
+                        Image(painterResource(R.mipmap.ic_launcher), null)
+                    })
                 if (showDialog.value) {
                     NewDeckPopup(onNewDeck = { addNewDeck(it) }, onDismiss= { showDialog.value = false })
                 }
