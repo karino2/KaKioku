@@ -124,11 +124,12 @@ fun RowScope.BottomButton(modifier: Modifier=Modifier, content: @Composable (Box
 fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (nextLevel: Int)->Unit, gotoEdit: ()->Unit, onBack: ()->Unit) {
     KaKiokuTheme {
         Column(modifier= Modifier.fillMaxHeight()) {
-            TopAppBar(title = { Text(deckName) }, actions = {
-                IconButton(onClick={gotoEdit()}) {
-                    Icon(Icons.Filled.Edit, "Edit Card")
-                }
-            },
+            TopAppBar(title = { Text(deckName) },
+                actions = {
+                    IconButton(onClick={gotoEdit()}) {
+                        Icon(Icons.Filled.Edit, "Edit Card")
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { onBack() }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
@@ -160,10 +161,12 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
 
             BottomNavigation {
                 if (!isAnswered.value) {
-                    BottomButton(modifier=Modifier.selectable(
-                        selected = peeping.value,
-                        onClick = { peeping.value = !peeping.value }
-                    ).background(color = if(peeping.value) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.primary)
+                    BottomButton(modifier= Modifier
+                        .selectable(
+                            selected = peeping.value,
+                            onClick = { peeping.value = !peeping.value }
+                        )
+                        .background(color = if (peeping.value) MaterialTheme.colors.secondaryVariant else MaterialTheme.colors.primary)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(imageVector = Icons.Filled.Search, contentDescription = "Peep")
@@ -192,12 +195,16 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
                         val nextLabel = if(cardData.level==0) "$normalIntervalMin min" else "1 day"
                         val retryLevel = if(cardData.level == 2) 0 else cardData.level
 
-                        BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
+                        BottomButton(modifier= Modifier
+                            .background(color = retryColor)
+                            .clickable { onNext(retryLevel) }) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(stringResource(R.string.label_retry))
                             }
                         }
-                        BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
+                        BottomButton(modifier= Modifier
+                            .background(color = normalColor)
+                            .clickable { onNext(normalLevel) }) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(nextLabel)
                                 Text(stringResource(R.string.label_normal))
@@ -214,18 +221,24 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
 
 
 
-                        BottomButton(modifier=Modifier.background(color=retryColor).clickable { onNext(retryLevel) }) {
+                        BottomButton(modifier= Modifier
+                            .background(color = retryColor)
+                            .clickable { onNext(retryLevel) }) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(stringResource(R.string.label_retry))
                             }
                         }
-                        BottomButton(modifier=Modifier.background(color=hardColor).clickable {  onNext(hardLevel) }) {
+                        BottomButton(modifier= Modifier
+                            .background(color = hardColor)
+                            .clickable { onNext(hardLevel) }) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("$hardIntervalDays$labelDays")
                                 Text(stringResource(R.string.label_hard))
                             }
                         }
-                        BottomButton(modifier=Modifier.background(color=normalColor).clickable {  onNext(normalLevel) }) {
+                        BottomButton(modifier= Modifier
+                            .background(color = normalColor)
+                            .clickable { onNext(normalLevel) }) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("$normalIntervalDays$labelDays")
                                 Text(stringResource(R.string.label_normal))
