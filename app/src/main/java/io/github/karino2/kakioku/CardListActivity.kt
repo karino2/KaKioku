@@ -31,6 +31,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CardListActivity : ComponentActivity() {
     private lateinit var dirUrl : Uri
@@ -137,8 +138,10 @@ fun CardList(cards: LiveData<List<CardDataSource>>, cardIO: CardIO, cardHeightDP
                         val aImageState = remember { mutableStateOf<Bitmap>(blankBitmap) }
                         loaderScope.launch(Dispatchers.IO) {
                             val loadedCard = cardIO.loadCard(cardSource)
-                            qImageState.value = loadedCard.question
-                            aImageState.value = loadedCard.answer
+                            withContext(Dispatchers.Main) {
+                                qImageState.value = loadedCard.question
+                                aImageState.value = loadedCard.answer
+                            }
                         }
                         Box(modifier= Modifier.height(cardHeightDP).weight(1f).padding(5.dp, 10.dp)) {
                             Image(qImageState.value.asImageBitmap(), "Question Image")
