@@ -52,8 +52,8 @@ class CardListActivity : ComponentActivity() {
 
     private var requireReload = false
 
-    override fun onStart() {
-        super.onStart()
+    override fun onRestart() {
+        super.onRestart()
 
         if(requireReload) {
             reloadCardList()

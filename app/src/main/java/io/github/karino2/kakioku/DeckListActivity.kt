@@ -71,8 +71,8 @@ class DeckListActivity : ComponentActivity() {
             .sortedByDescending { it.name }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onRestart() {
+        super.onRestart()
 
         // return from other activity, etc.
         if(true == files.value?.isNotEmpty()) {
