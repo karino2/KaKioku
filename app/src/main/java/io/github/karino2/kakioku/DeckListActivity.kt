@@ -214,7 +214,7 @@ fun NewDeckPopup(onNewDeck : (deckName: String)->Unit, onDismiss: ()->Unit) {
 @Composable
 fun Deck(deckDir: DocumentFile, cardStats: String,  onOpenDeck : ()->Unit, onAddCards: () -> Unit, onCardList: () -> Unit) {
     val expanded = remember { mutableStateOf(false) }
-    Card(border= BorderStroke(2.dp, Color.Black)) {
+    Card(modifier=Modifier.padding(0.dp, 2.dp), border= BorderStroke(2.dp, Color.Black)) {
         Row(modifier= Modifier
             .clickable(onClick = onOpenDeck)
             .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
