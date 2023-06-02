@@ -17,11 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
@@ -136,18 +133,28 @@ fun CardList(cards: LiveData<List<CardDataSource>>, cardIO: CardIO, cardHeightDP
                     Row(modifier=Modifier.height(IntrinsicSize.Min)) {
                         val qImageState = remember { mutableStateOf<Bitmap>(blankBitmap) }
                         val aImageState = remember { mutableStateOf<Bitmap>(blankBitmap) }
-                        loaderScope.launch(Dispatchers.IO) {
-                            val loadedCard = cardIO.loadCard(cardSource)
-                            withContext(Dispatchers.Main) {
-                                qImageState.value = loadedCard.question
-                                aImageState.value = loadedCard.answer
+                        LaunchedEffect(true) {
+                            loaderScope.launch(Dispatchers.IO) {
+                                val loadedCard = cardIO.loadCard(cardSource)
+                                withContext(Dispatchers.Main) {
+                                    qImageState.value = loadedCard.question
+                                    aImageState.value = loadedCard.answer
+                                }
                             }
                         }
-                        Box(modifier= Modifier.height(cardHeightDP).weight(1f).padding(5.dp, 10.dp)) {
+                        Box(modifier= Modifier
+                            .height(cardHeightDP)
+                            .weight(1f)
+                            .padding(5.dp, 10.dp)) {
                             Image(qImageState.value.asImageBitmap(), "Question Image")
                         }
-                        Divider(color= androidx.compose.ui.graphics.Color.LightGray, thickness = 2.dp, modifier= Modifier.fillMaxHeight().width(2.dp))
-                        Box(modifier= Modifier.height(cardHeightDP).weight(1f).padding(5.dp, 10.dp)) {
+                        Divider(color= androidx.compose.ui.graphics.Color.LightGray, thickness = 2.dp, modifier= Modifier
+                            .fillMaxHeight()
+                            .width(2.dp))
+                        Box(modifier= Modifier
+                            .height(cardHeightDP)
+                            .weight(1f)
+                            .padding(5.dp, 10.dp)) {
                             Image(aImageState.value.asImageBitmap(), "Answer Image")
                         }
                     }
