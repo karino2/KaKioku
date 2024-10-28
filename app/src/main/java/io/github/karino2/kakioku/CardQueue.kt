@@ -129,7 +129,7 @@ class CardIO(val resolver: ContentResolver) {
 
     fun savePngFile(bitmap: Bitmap, pngFile: DocumentFile) {
         resolver.openOutputStream(pngFile.uri, "wt").use {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 80, it!!)
         }
     }
 

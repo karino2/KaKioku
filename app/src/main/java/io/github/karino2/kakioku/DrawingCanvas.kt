@@ -119,11 +119,11 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
         clearCount = count
         initialBmp = null
 
-        val old = bitmap.copy(bitmap.config, true)
+        val old = bitmap.copy(bitmap.config!!, true)
 
         clearCanvas()
 
-        undoList.pushUndoCommand(0, 0, old, bitmap.copy(bitmap.config, true))
+        undoList.pushUndoCommand(0, 0, old, bitmap.copy(bitmap.config!!, true))
         notifyUndoStateChanged()
     }
 
