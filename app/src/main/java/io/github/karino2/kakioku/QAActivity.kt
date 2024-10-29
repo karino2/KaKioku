@@ -158,8 +158,7 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
                     }
                 }
             }
-
-            BottomNavigation {
+            BottomNavigation(modifier = Modifier.height(IntrinsicSize.Min)) {
                 if (!isAnswered.value) {
                     BottomButton(modifier= Modifier
                         .selectable(
@@ -178,6 +177,7 @@ fun Content(penColor: Color, cardData: CardData, deckName: String, onResult: (ne
                             Icon(imageVector = Icons.Filled.Done, contentDescription = "Answer")
                             Text(stringResource(R.string.label_goto_answer))
                         }
+
                     }
                 } else {
                     val onNext = fun(nextLevel:Int) {

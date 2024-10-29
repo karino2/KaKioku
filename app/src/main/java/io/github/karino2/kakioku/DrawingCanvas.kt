@@ -86,9 +86,17 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        setupNewCanvasBitmap(w, h)
-        drawInitialBitmap()
+        // If it differ dramatically, recreate it.
+        if (oldw*oldh == 0 || (Math.abs(w-oldw) > 5 || Math.abs(h-oldh) > 5))
+        {
+            setupNewCanvasBitmap(w, h)
+            drawInitialBitmap()
+        } else {
+            // if small change, just resize.
+            resizeCanvasBitmap(w, h)
+        }
         updateBmpListener(bitmap)
+
     }
 
     fun setStrokeColor(newColor: Int) {
@@ -100,6 +108,11 @@ class DrawingCanvas(context: Context, var background: Bitmap? = null, var initia
         drawInitialBitmap()
         updateBmpListener(bitmap)
         invalidate()
+    }
+
+    private fun resizeCanvasBitmap(w: Int, h: Int) {
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, w, h)
+        bmpCanvas = Canvas(bitmap)
     }
 
     private fun setupNewCanvasBitmap(w: Int, h: Int) {

@@ -3,8 +3,10 @@ package io.github.karino2.kakioku
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -126,6 +128,7 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
                             canUndoState.value = undo
                             canRedoState.value = redo
                         }
+                        clipToOutline = true
                     }
                 },
                 update = {
@@ -137,7 +140,6 @@ fun ClearableCanvas(penColor: Color, label: String, clearCount: Int, onClear: ()
                     it.redo(redoCount.value)
                 }
             )
-
         }
     }
 
