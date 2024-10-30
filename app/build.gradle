@@ -47,14 +47,13 @@ android {
 }
 
 dependencies {
-
     implementation libs.core.ktx
     implementation libs.appcompat
     implementation libs.material
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation libs.ui
+    implementation libs.androidx.material
+    implementation libs.androidx.material.icons.extended
+    implementation libs.androidx.ui.tooling
     implementation libs.runtime.livedata
     implementation libs.lifecycle.runtime.ktx
 
@@ -63,5 +62,5 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    androidTestImplementation libs.androidx.ui.test.junit4
 }
